@@ -29,8 +29,8 @@ module Shrimp
           headers                   = { }
           headers["Content-Length"] = (body.respond_to?(:bytesize) ? body.bytesize : body.size).to_s
           headers["Content-Type"]   = "application/pdf"
-          headers["Cache-Control"]  = "private"
-          headers["Pragma"]         = "public"
+          headers["Cache-Control"]        = "private"
+          headers["Content-Disposition"]  = "attachment; filename=report.pdf"
           [200, headers, response]
         else
           if rendering_in_progress?
