@@ -20,6 +20,10 @@ module Shrimp
             return error_response
           end
           return ready_response if env['HTTP_X_REQUESTED_WITH']
+
+          query_parameters = @request.query_string.split('&').map{|param| param.split('=')}
+          query_parameters_hash = Hash[*query_parameters.flatten]
+
           file = File.open(render_to, "rb")
           body = file.read
           file.close
@@ -30,7 +34,8 @@ module Shrimp
           headers["Content-Length"] = (body.respond_to?(:bytesize) ? body.bytesize : body.size).to_s
           headers["Content-Type"]   = "application/pdf"
           headers["Cache-Control"]        = "private"
-          headers["Content-Disposition"]  = "attachment; filename=report.pdf"
+          headers["Content-Disposition"]  = "attachment"
+          headers["Content-Disposition"]  += "; filename=#{query_parameters_hash['filename']}" if query_parameters_hash['filename']
           [200, headers, response]
         else
           if rendering_in_progress?
@@ -56,7 +61,10 @@ module Shrimp
 
     # Private: start phantom rendering in a separate process
     def fire_phantom
-      cmd = Phantom.new(@request.url.sub(%r{\.pdf$}, ''), @options, @request.cookies).to_pdf(render_to)
+      uri = URI.parse(@request.url)
+      uri.path = uri.path.sub(%r{\.pdf$}, '')
+
+      cmd = Phantom.new(uri.to_s, @options, @request.cookies).to_pdf(render_to)
       Thread.new { cmd }
     end
 

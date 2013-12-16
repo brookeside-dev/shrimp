@@ -73,7 +73,17 @@ describe Shrimp::Middleware do
       last_response.body.should eq "Hello World"
     end
 
+    it "should use the filename in the query parameter" do
+      mock_file = double(File, :read => "Hello World", :close => true, :mtime => Time.now)
+      File.stub(:'exists?').and_return true
+      File.stub(:'size').and_return 1000
+      File.stub(:'open').and_return mock_file
+      File.stub(:'new').and_return mock_file
 
+      get '/test.pdf?filename=foo-bar-baz.pdf&baz=foo'
+      last_response.status.should eq 200
+      last_response.header['Content-Disposition'].should eq 'attachment; filename=foo-bar-baz.pdf'
+    end
   end
   context "not matching pdf" do
     it "should skip pdf rendering" do
