@@ -138,7 +138,6 @@ module Shrimp
           <html>
           <head>
         </head>
-          <body onLoad="setTimeout(function(){ window.location.reload()}, #{interval * 1000}); setTimeout(function() { open(location, '_self').close(); }, #{(interval * 1000) + 2000});">
           <h2>Preparing pdf... </h2>
           </body>
         </ html>
