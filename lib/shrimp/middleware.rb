@@ -64,8 +64,7 @@ module Shrimp
       uri = URI.parse(@request.url)
       uri.path = uri.path.sub(%r{\.pdf$}, '')
 
-      cmd = Phantom.new(uri.to_s, @options, @request.cookies).to_pdf(render_to)
-      Thread.new { cmd }
+      Thread.new { Phantom.new(uri.to_s, @options, @request.cookies).to_pdf(render_to) }
     end
 
     def render_to
